@@ -81,8 +81,8 @@ def usage():
     print "in a fake interactive shell."
     print
     print "FILE can either be a module name or the path to a text file."
-    print "Press random keys to 'type' source.  Press <enter> to show results."
-    print "EOF to exit at the end, ^C to break." 
+    print "Press: <random_keys> to 'type' source   <EOF> to exit at the end"
+    print "       <enter> to show results.         <^C> to break." 
     
 def main():
     
