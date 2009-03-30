@@ -55,11 +55,16 @@
 			// initialize the cursor
 			var current_line = 0;
 			var index = 0;
+			
 
 		    jQuery(document.body).bind('keypress', function(e) {
 
 				var line = lines[current_line];
 				var c = line[index];
+
+				if (!check_valid_line(line) ) {
+					jQuery("#output1").append("\n");
+				}
 				
 				if ( index <= line.length )  {
 					jQuery("#output1").append(c);
@@ -77,8 +82,8 @@
 
 				// shortcut for lines that we know are not valid python lines...(result lines)
 				if ( !check_valid_line(line) ) {
-					jQuery("#output1").append("\n")
 					jQuery("#output1").append(line);
+					jQuery("#output1").append("\n");
 					current_line++;
 					index = 0;
 					return;
