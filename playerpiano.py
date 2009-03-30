@@ -11,6 +11,8 @@ Original idea & minor tty frobage from Ian Bicking.  Thanks Ian!
 import string
 
 class UselessColorFilter(object):
+    """a finite state machine that eats duplicate equivalent ANSi color codes, as should be 'obvious', from the source. -asheesh
+    """
     def __init__(self):
         self.state = 'START'
         self.growing_color = ''
@@ -52,16 +54,19 @@ class UselessColorFilter(object):
             else:
                 self.growing_color += char
 
-def process_string(s):
-    generated = []
-    ucf = UselessColorFilter()
-    for char in s:
-        ret = ucf.handle_char(char)
-        if ret is None:
-            continue
-        else:
-            generated.append(ret)
-    return generated
+    def process_string(self, s):
+        """"@yields a list of 1-char tokens, with a possible control code prefix
+        
+        FIXME: asheesh make me a generator.
+        """
+        generated = []
+        for char in s:
+            ret = self.handle_char(char)
+            if ret is None:
+                continue
+            else:
+                generated.append(ret)
+        return generated
 
 
 import doctest
@@ -181,7 +186,7 @@ def main():
                 source = highlight(source, lexer, formatter)
 
                 # "fix it up"
-                source = process_string(source)
+                source = UselessColorFilter().process_string(source)
 
                 # strip trailing newline - added back below
                 assert source[-2] != '\r'
