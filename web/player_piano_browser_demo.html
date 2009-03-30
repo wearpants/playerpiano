@@ -31,20 +31,18 @@
 	
 	<script type="text/javascript" charset="utf-8">
 	
-		//alert( "hello?: " + ltrim("          lakjsdfkjasdfljasdf"));
-
-
+		// enter jQuery no conflict mode in order to 
 		jQuery.noConflict();
  
 		jQuery(document).ready(function() {	
 			
 			// time to refactor
 
+			// SETUP
 			var valid_line_starts = [ ">>>", "..."];
 			
 			var codeblock = jQuery("#example1").text();
 			var lines = codeblock.split("\n");
-			
 			
 			var check_valid_line = function(str) {
 				var valid = false;
@@ -56,46 +54,36 @@
 				return valid;
 			}
 			
+			var index = 0;
+			var handle_valid_line = function(str) {
+				
+				
+				
+			}
+			// END SETUP
+			
+			
+			
+			//actual parser..
 			
 			// clean lines... 
 			for (var i=0; i < lines.length; i++) {
 				lines[i] = ltrim(lines[i]);
 			};
 			
-			//step through lines...
-			for (var i=0; i < lines.length; i++) {
-
-				jQuery("#output").append("|" + lines[i] + "|" + "<br />");
-				
-				//inspect if it has a valid line start 
-				if ( check_valid_line(lines[i]) ) {
-					alert("valid: " + lines[i]);					
-				} else {
-					alert("invalid: " + lines[i]);
-				}
-		
 			
-			};
-			
-
 			// step through the lines 
 			for (var i=0; i < lines.length; i++) {
-				
-				// we need to step through the typer...
+
 				if ( check_valid_line( lines[i] )) {
-					
-					
-					
+					// we need to step through the typer...
+					handle_valid_line(lines[i]);
 				} else {
-					
-					jQuery("#output2").append(lines[i] + "<br />");
-					
+					 // simply output the result
+					jQuery("#output").append(lines[i] + "<br />");
 				}
-				
+			
 			};
-			
-			
-			
 			
 			
 			
@@ -105,62 +93,43 @@
 			var look_for_result_line = false;
 			var exampleKeys = jQuery("#example1").text();
 			
-			
-			jQuery("#example1").text("");
+			var current_line = 0;
+			var index = 0;
 
-		    jQuery(document.body).bind('keypress', function(e) { 
 
-				var next_source_char = exampleKeys.substr(which, 1);
+		    jQuery(document.body).bind('keypress', function(e) {
+
+				var line = lines[current_line];
+
+
 				
-				if (look_for_result_line == false) {
+				var c = line[index];
 				
-					if (next_source_char == '\n') { 
-						
-						look_for_result_line = true;
-						
-						if (event.keyCode == 13) {
-							alert(' you hit enter at the end of a line!');
-						} else {
-							alert(' you hit a key when you should have hit enter! ')
-							jQuery("#example1").append('\n');				
-						}
-					} else { 
-						jQuery("#example1").append(exampleKeys.substr(which, 1));				
-						//jQuery("#example1").append('key pressed: ' + event.keyCode + '<br />');
+				if ( !(index <= line.length) ) {
+					//require an "Enter" press
+					if (event.keyCode == 13) {
+						current_line++;
+						index = 0;
+						jQuery("#output").append(c);
 					}
 				} else { 
-					
-					// we are looking for a result line, so next time, we don't want to look for a result line
-					look_for_result_line = false;
-					
-					// inspect on line and see if it a result line...
-					var possible_prompt = exampleKeys.substr(which, 4);
-					
-					if ( !(possible_prompt.match(">>>")) && !(possible_prompt.match("..."))) {
-						alert('we found a non prompt line');
-					}
-					
-					// need to grab the "result" line, and print out the line...
-					var result_line = "";
-					while( which < exampleKeys.length) {
-						var c = exampleKeys.substr(which, 1);
-						result_line += c;
-						if ( c == "\n" ) {
-							break;
-						}
-						which += 1;
-					}
-					
-					jQuery("#example1").append(result_line);
+					jQuery("#output").append(c);
+					index++;
 				}
-				
-				//if we just pressed enter, then we need to determine if the next line needs to be a 'result' line...
-				if (event.keyCode == 13) {
-					look_for_output = true;
+
+				line = lines[current_line];
+
+				// shortcut for lines that we know are not valid python lines...
+				if ( !check_valid_line(line) ) {
+					jQuery("#output").append(line);
+					current_line++;
+					index = 0;
+					return;
 				}
-			
-				which += 1;
+					
 			});
+			
+
 
 		});
 
@@ -181,15 +150,13 @@
 	</pre>
 	
 	<div id="hello">hello world</div>
+	</div>
 
-	<div id="output" style="border: 2px #CDCDCD solid; min-height: 300px;">
-	
+	<div id="output" style="border: 2px #CDCDCD solid; min-height: 300px;">	
 	</div>
-	<br><br>
-	<div id="output2" style="border: 2px #CDCDCD solid; min-height: 300px;">
+
 	
-	</div>
-	
+
 
 
 	</body>
