@@ -36,101 +36,55 @@
  
 		jQuery(document).ready(function() {	
 			
-			// time to refactor
-
 			// SETUP
 			var valid_line_starts = [ ">>>", "..."];
-			
 			var codeblock = jQuery("#example1").text();
 			var lines = codeblock.split("\n");
+			for (var i=0; i < lines.length; i++) { lines[i] = ltrim(lines[i]); };
 			
 			var check_valid_line = function(str) {
-				var valid = false;
 				for (var i=0; i < valid_line_starts.length; i++) {
 					if ( str.startsWith(valid_line_starts[i]) ) {
-						valid = true;
+						return true;
 					}
 				}
-				return valid;
-			}
-			
-			var index = 0;
-			var handle_valid_line = function(str) {
-				
-				
-				
+				return false;
 			}
 			// END SETUP
 			
-			
-			
-			//actual parser..
-			
-			// clean lines... 
-			for (var i=0; i < lines.length; i++) {
-				lines[i] = ltrim(lines[i]);
-			};
-			
-			
-			// step through the lines 
-			for (var i=0; i < lines.length; i++) {
 
-				if ( check_valid_line( lines[i] )) {
-					// we need to step through the typer...
-					handle_valid_line(lines[i]);
-				} else {
-					 // simply output the result
-					jQuery("#output").append(lines[i] + "<br />");
-				}
-			
-			};
-			
-			
-			
-
-			var which = 0;
-			//do we currently need to look for output?
-			var look_for_result_line = false;
-			var exampleKeys = jQuery("#example1").text();
-			
+			// initialize the cursor
 			var current_line = 0;
 			var index = 0;
-
 
 		    jQuery(document.body).bind('keypress', function(e) {
 
 				var line = lines[current_line];
-
-
-				
 				var c = line[index];
 				
-				if ( !(index <= line.length) ) {
+				if ( index <= line.length )  {
+					jQuery("#output").append(c);
+					index++;
+				} else { 
 					//require an "Enter" press
 					if (event.keyCode == 13) {
 						current_line++;
 						index = 0;
 						jQuery("#output").append(c);
 					}
-				} else { 
-					jQuery("#output").append(c);
-					index++;
 				}
 
 				line = lines[current_line];
 
-				// shortcut for lines that we know are not valid python lines...
+				// shortcut for lines that we know are not valid python lines...(result lines)
 				if ( !check_valid_line(line) ) {
 					jQuery("#output").append(line);
 					current_line++;
 					index = 0;
 					return;
 				}
-					
 			});
 			
-
-
 		});
 
 	</script>
@@ -149,8 +103,6 @@
 	11
 	</pre>
 	
-	<div id="hello">hello world</div>
-	</div>
 
 	<div id="output" style="border: 2px #CDCDCD solid; min-height: 300px;">	
 	</div>
