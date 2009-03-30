@@ -25,8 +25,7 @@
 
 
 	<style type="text/css" media="screen">
-		pre { background-color: #C4C4C4; min-height: 200px; }
-		.red { color: #F00;}
+		pre { background-color: #C4C4C4; min-height: 150px; padding: 15px; }
 	</style>
 	
 	<script type="text/javascript" charset="utf-8">
@@ -63,14 +62,14 @@
 				var c = line[index];
 				
 				if ( index <= line.length )  {
-					jQuery("#output").append(c);
+					jQuery("#output1").append(c);
 					index++;
 				} else { 
 					//require an "Enter" press
 					if (event.keyCode == 13) {
 						current_line++;
 						index = 0;
-						jQuery("#output").append(c);
+						jQuery("#output1").append('\n');
 					}
 				}
 
@@ -78,7 +77,8 @@
 
 				// shortcut for lines that we know are not valid python lines...(result lines)
 				if ( !check_valid_line(line) ) {
-					jQuery("#output").append(line);
+					jQuery("#output1").append("\n")
+					jQuery("#output1").append(line);
 					current_line++;
 					index = 0;
 					return;
@@ -94,21 +94,17 @@
 
 <body>
 
-	<pre id="example1">
-	>>> print "hello world"
-	hello world
-	>>> def adder(x, y):
-	...     return x + y
-	>>> add_lambda = lambda y: adder(1, y)
-	11
+<pre id="example1">
+>>> print "hello world"
+hello world
+>>> def adder(x, y):
+...     return x + y
+>>> add_lambda = lambda y: adder(1, y)
+11
+</pre>
+	
+	<pre id="output1">
 	</pre>
-	
-
-	<div id="output" style="border: 2px #CDCDCD solid; min-height: 300px;">	
-	</div>
-
-	
-
 
 
 	</body>
