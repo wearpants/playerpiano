@@ -15,6 +15,10 @@ import sys
 import re
 import os.path
 
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import TerminalFormatter
+
 stdin_fd = None
 old_mask = None
 
@@ -45,7 +49,6 @@ def write(s):
     s = s.replace('\n', '\r\n')
     sys.stdout.write(s)
     sys.stdout.flush()
-
     
 banner = '''Python %s on %s\nType "help", "copyright", "credits" or "license" for more information.\n'''%(sys.version, sys.platform)
 
@@ -107,6 +110,9 @@ def main():
             os.system('clear')
         write(banner)
 
+        lexer = PythonLexer()
+        formatter = TerminalFormatter(bg="dark")
+
         for test in tests:
             for example in test.examples:
                 want = example.want
@@ -114,6 +120,10 @@ def main():
                 
                 # strip doctest directives
                 source = doctest_re.sub('', source)
+
+                # highlight
+                source = highlight(source, lexer, formatter)
+
                 # strip trailing newline - added back below
                 source = source.rstrip()
                 
