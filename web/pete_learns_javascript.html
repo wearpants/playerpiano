@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+	<title>Player Piano - Pete Learns</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<!-- Date: 2009-03-29 -->
+	<!-- Author: Ivan Krozic -->
+    <script type="text/javascript" src="jquery-1.2.6.min.js"></script>
+
+	<!-- left trim -->
+	<script type="text/javascript" charset="utf-8">
+		function ltrim(stringToTrim) {
+			return stringToTrim.replace(/^\s+/,"");
+		}
+	</script>
+
+	<style type="text/css" media="screen">
+		pre { background-color: #C4C4C4; min-height: 150px; padding: 15px; }
+		pre.doctest {display: none}
+		.hidden {background-color: #AA6666; display: none}
+	</style>
+	
+	<script type="text/javascript" charset="utf-8">
+ 
+		$(document).ready(function() {		
+			
+			var spanify = function(text) {
+			    text = ltrim(text)
+
+    			var arr = []
+    			for (var i = 0; i < text.length; i++) {
+        		    arr.push('<span class="hidden">'+text[i]+"</span>");
+    		    }
+		    return arr.join("");
+	    };
+			
+			
+			$(".doctest-block").each(function(i) {
+                    $(this).find("span").each(function(j) {
+                            if ( $(this).hasClass("doctest-source") ) {
+                                $(this).html(spanify($(this).text()))};
+                            if ( $(this).hasClass("doctest-want") ) {
+                                $(this).addClass("hidden")}
+
+                        });
+                    });
+            
+            
+            var wait_for_enter = false;
+            
+			$(window).bind('keypress', function(e) {
+                console.log('press'+e.keyCode)
+                if (wait_for_enter) {
+                    console.log('test')
+                    if (e.keyCode == 13) {
+                        console.log('go')
+                        wait_for_enter = false;
+                        $(".doctest-want").eq(0).removeClass("hidden"); }
+                    else console.log('wait');
+                    
+                    return true;
+                 }
+			    node = $(".hidden").eq(0)
+		        node.removeClass("hidden");
+		        if (node.next(".hidden").length < 1) {
+		            wait_for_enter = true
+		            console.log('please wait'+node.next(".hidden").length)
+		           }
+
+		    });
+		});
+	</script>
+
+
+</head>
+
+<body>
+
+    <h1 class="title">ObjectTemplates</h1>
+
+<p>ObjectTemplates are a template for creating objects. They work well with Factories.</p>
+<p>A <strong>Bunch</strong> is simply a bunch of attributes. Keyword arguments to a Bunch are turned into attributes:</p>
+<pre class="doctest-block">
+<span class="doctest-source">b = Bunch(pants=42, shirt=15)
+</span><span class="doctest-want"></span><span class="doctest-source">b.pants
+</span><span class="doctest-want">42
+</span><span class="doctest-source">b.shirt
+</span><span class="doctest-want">15
+</span></pre>
+<p>Calling a bunch returns a new copy:</p>
+<pre class="doctest-block">
+<span class="doctest-source">c = b()
+</span><span class="doctest-want"></span><span class="doctest-source">c.__dict__ == b.__dict__
+</span><span class="doctest-want">True
+</span><span class="doctest-source">c is b
+</span><span class="doctest-want">False
+</span></pre>
+
+
+	
+</body>
+</html>
