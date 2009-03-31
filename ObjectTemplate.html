@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.4: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.6: http://docutils.sourceforge.net/" />
 <title>ObjectTemplates</title>
 <style type="text/css">
 
@@ -243,63 +243,64 @@ code, tt {
 <body>
 <div class="document" id="objecttemplates">
 <h1 class="title">ObjectTemplates</h1>
+
 <p>ObjectTemplates are a template for creating objects. They work well with Factories.</p>
 <p>A <strong>Bunch</strong> is simply a bunch of attributes. Keyword arguments to a Bunch are turned into attributes:</p>
 <pre class="doctest-block">
-&gt;&gt;&gt; b = Bunch(pants=42, shirt=15)
-&gt;&gt;&gt; b.pants
-42
-&gt;&gt;&gt; b.shirt
-15
-</pre>
+<span class="doctest-source">b = Bunch(pants=42, shirt=15)
+</span><span class="doctest-want"></span><span class="doctest-source">b.pants
+</span><span class="doctest-want">42
+</span><span class="doctest-source">b.shirt
+</span><span class="doctest-want">15
+</span></pre>
 <p>Calling a bunch returns a new copy:</p>
 <pre class="doctest-block">
-&gt;&gt;&gt; c = b()
-&gt;&gt;&gt; c.__dict__ == b.__dict__
-True
-&gt;&gt;&gt; c is b
-False
-</pre>
+<span class="doctest-source">c = b()
+</span><span class="doctest-want"></span><span class="doctest-source">c.__dict__ == b.__dict__
+</span><span class="doctest-want">True
+</span><span class="doctest-source">c is b
+</span><span class="doctest-want">False
+</span></pre>
 <p>When called, an <strong>ObjectTemplate</strong> instance produces a new instance
 of <tt class="docutils literal"><span class="pre">bunchClass</span></tt>. Attributes on the template are passed as kwargs
 to the bunch.  However, if an attribute is callable, it is called
 and the return value is used instead:</p>
 <pre class="doctest-block">
-&gt;&gt;&gt; counter = itertools.count(1).next # an incrementing counter
-&gt;&gt;&gt; def color():
-...     return &quot;blue&quot;
-&gt;&gt;&gt; template = ObjectTemplate(size=42,
-...                           color=color,
-...                           count=counter,
-...                           bunchClass=Bunch)
-&gt;&gt;&gt; bunch = template()
-&gt;&gt;&gt; isinstance(bunch, Bunch)
-True
-&gt;&gt;&gt; bunch.size
-42
-&gt;&gt;&gt; bunch.color
-'blue'
-&gt;&gt;&gt; bunch.count
-1
-</pre>
+<span class="doctest-source">counter = itertools.count(1).next # an incrementing counter
+</span><span class="doctest-want"></span><span class="doctest-source">def color():
+    return &quot;blue&quot;
+</span><span class="doctest-want"></span><span class="doctest-source">template = ObjectTemplate(size=42,
+                          color=color,
+                          count=counter,
+                          bunchClass=Bunch)
+</span><span class="doctest-want"></span><span class="doctest-source">bunch = template()
+</span><span class="doctest-want"></span><span class="doctest-source">isinstance(bunch, Bunch)
+</span><span class="doctest-want">True
+</span><span class="doctest-source">bunch.size
+</span><span class="doctest-want">42
+</span><span class="doctest-source">bunch.color
+</span><span class="doctest-want">'blue'
+</span><span class="doctest-source">bunch.count
+</span><span class="doctest-want">1
+</span></pre>
 <p>Each call to the template produces a new bunch.  Any functions will
 be called again:</p>
 <pre class="doctest-block">
-&gt;&gt;&gt; bunch2 = template()
-&gt;&gt;&gt; bunch2.count
-2
-</pre>
+<span class="doctest-source">bunch2 = template()
+</span><span class="doctest-want"></span><span class="doctest-source">bunch2.count
+</span><span class="doctest-want">2
+</span></pre>
 <p>If you want to pass a callable object to the bunch, wrap it in a lambda:</p>
 <pre class="doctest-block">
-&gt;&gt;&gt; template = ObjectTemplate()
-&gt;&gt;&gt; template.return_val = color
-&gt;&gt;&gt; template.a_function = lambda: color
-&gt;&gt;&gt; bunch = template()
-&gt;&gt;&gt; bunch.return_val
-'blue'
-&gt;&gt;&gt; bunch.a_function #doctest:+ELLIPSIS
-&lt;function color at ...&gt;
-</pre>
+<span class="doctest-source">template = ObjectTemplate()
+</span><span class="doctest-want"></span><span class="doctest-source">template.return_val = color
+</span><span class="doctest-want"></span><span class="doctest-source">template.a_function = lambda: color
+</span><span class="doctest-want"></span><span class="doctest-source">bunch = template()
+</span><span class="doctest-want"></span><span class="doctest-source">bunch.return_val
+</span><span class="doctest-want">'blue'
+</span><span class="doctest-source">bunch.a_function #doctest:+ELLIPSIS
+</span><span class="doctest-want">&lt;function color at ...&gt;
+</span></pre>
 <p>ObjectTemplate can be used for configuration:</p>
 <pre class="literal-block">
 config = ObjectTemplate()
