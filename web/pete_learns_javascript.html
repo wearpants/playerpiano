@@ -19,7 +19,8 @@
 	<style type="text/css" media="screen">
 		pre { background-color: #C4C4C4; min-height: 150px; padding: 15px; }
 		pre.doctest {display: none}
-		.hidden {background-color: #AA6666; display: none}
+		.hidden {background-color: #AA6666;}
+		.noshow {background-color: #66AA66;}
 	</style>
 	
 	<script type="text/javascript" charset="utf-8">
@@ -27,7 +28,6 @@
 		$(document).ready(function() {		
 			
 			var spanify = function(text) {
-			    text = ltrim(text)
 
     			var arr = []
     			for (var i = 0; i < text.length; i++) {
@@ -42,7 +42,7 @@
                             if ( $(this).hasClass("doctest-source") ) {
                                 $(this).html(spanify($(this).text()))};
                             if ( $(this).hasClass("doctest-want") ) {
-                                $(this).addClass("hidden")}
+                                $(this).addClass("noshow")}
 
                         });
                     });
@@ -51,22 +51,18 @@
             var wait_for_enter = false;
             
 			$(window).bind('keypress', function(e) {
-                console.log('press'+e.keyCode)
                 if (wait_for_enter) {
-                    console.log('test')
                     if (e.keyCode == 13) {
-                        console.log('go')
                         wait_for_enter = false;
-                        $(".doctest-want").eq(0).removeClass("hidden"); }
-                    else console.log('wait');
-                    
-                    return true;
+                        console.log("gotenter")
+                        $(".doctest-want").eq(0).removeClass("noshow"); }
+                    return;
                  }
 			    node = $(".hidden").eq(0)
 		        node.removeClass("hidden");
 		        if (node.next(".hidden").length < 1) {
 		            wait_for_enter = true
-		            console.log('please wait'+node.next(".hidden").length)
+		            console.log("pleasewait")
 		           }
 
 		    });
