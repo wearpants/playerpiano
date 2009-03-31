@@ -49,19 +49,21 @@
             
             
             var wait_for_enter = false;
+            last_node = null
             
 			$(window).bind('keypress', function(e) {
                 if (wait_for_enter) {
                     if (e.keyCode == 13) {
                         wait_for_enter = false;
                         console.log("gotenter")
-                        $(".doctest-want").eq(0).removeClass("noshow"); }
+                        last_node.parent().next('.doctest-want').removeClass("noshow");}
                     return;
                  }
 			    node = $(".hidden").eq(0)
 		        node.removeClass("hidden");
 		        if (node.next(".hidden").length < 1) {
 		            wait_for_enter = true
+		            last_node = node
 		            console.log("pleasewait")
 		           }
 
