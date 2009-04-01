@@ -6,8 +6,31 @@
 <meta name="generator" content="Docutils 0.6: http://docutils.sourceforge.net/" />
 
 <script type="text/javascript" src="jquery-1.3.2.js"></script>
+
+<script src="/static/Orbited.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+    // needed by stomp.js
+    TCPSocket = Orbited.TCPSocket;
+</script>
+<script src="/static/protocols/stomp/stomp.js" type="text/javascript" charset="utf-8"></script>
+
+
 <script type="text/javascript" charset="utf-8">
 	$(document).ready(function() {		
+
+
+
+        var client = new STOMPClient();
+        // Set up STOMP event handlers before connecting.
+        client.onconnectedframe = function() {
+            client.subscribe('/piano/keys');
+        };
+        client.onmessageframe = function(frame) {
+            handle_keypress(frame.body);
+        };
+        client.connect('localhost', 61613);
+
+        // SPANify
 		var spanify = function(text) {
 
 			var arr = ['<span class="hidden-source">&gt;&gt;&gt; </span>']
@@ -35,10 +58,13 @@
         
         var waitNode = null;
         
-		$(window).bind('keypress', function(e) {
+//		$(window).bind('keypress', function(e) {handle_keypress(e.keyCode)};)
+		
+		
+		var handle_keypress = function(keycode) {
 		    // wait for an enter to show the want
             if (waitNode) {
-                if (e.keyCode == 13) {
+                if (keycode == 13) {
                 waitNode.parent().next('.hidden-want').removeClass("hidden-want");
                 waitNode = null;
                 }
@@ -52,8 +78,7 @@
 	        if (node.next(".hidden-source").length < 1) {
 	            waitNode = node
 	           }
-
-	    });
+	    };
 	});
 </script>
 <title>ObjectTemplates</title>

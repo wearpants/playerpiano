@@ -10,6 +10,27 @@ Original idea & minor tty frobage from Ian Bicking.  Thanks Ian!
 
 import string
 
+import stomp
+
+class MyListener(object):
+    def on_error(self, headers, message):
+        print 'received an error %s' % message
+
+    def on_message(self, headers, message):
+        print 'received headers %r message %s' % (headers, message)
+
+conn = stomp.Connection()
+conn.add_listener(MyListener())
+conn.start()
+conn.connect()
+
+conn.subscribe(destination='/piano/keys', ack='auto')
+
+def sendstomp(s):
+    conn.send(s, destination='/piano/keys')
+
+
+
 class UselessColorFilter(object):
     """a finite state machine that eats duplicate equivalent ANSi color codes, as should be 'obvious', from the source. -asheesh
     """
@@ -110,6 +131,7 @@ def write(s):
     s = s.replace('\n', '\r\n')
     sys.stdout.write(s)
     sys.stdout.flush()
+    sendstomp(s)
     
 banner = '''Python %s on %s\nType "help", "copyright", "credits" or "license" for more information.\n'''%(sys.version, sys.platform)
 
