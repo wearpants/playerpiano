@@ -4,6 +4,58 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.6: http://docutils.sourceforge.net/" />
+
+<script type="text/javascript" src="web/jquery-1.3.2.js"></script>
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(function() {		
+		var spanify = function(text) {
+
+			var arr = ['<span class="hidden-source">&gt;&gt;&gt; </span>']
+			for (var i = 0; i < text.length; i++) {
+			    s = '<span class="hidden-source">'+text[i]
+			    if (text[i] == '\n' && i != text.length-1) s+='... '
+			    s += '</span>'
+    		    arr.push(s)
+		    }
+	    return arr.join("");
+    };
+		
+		
+		$(".doctest-block").each(function(i) {
+		    $(this).css("min-height", this.clientHeight+"px")
+		    
+                $(this).find("span").each(function(j) {
+                        if ( $(this).hasClass("doctest-source") ) {
+                            $(this).html(spanify($(this).text()))};
+                        if ( $(this).hasClass("doctest-want") ) {
+                            $(this).addClass("hidden-want")}
+                    });
+                });
+        
+        
+        var waitNode = null;
+        
+		$(window).bind('keypress', function(e) {
+		    // wait for an enter to show the want
+            if (waitNode) {
+                if (e.keyCode == 13) {
+                waitNode.parent().next('.hidden-want').removeClass("hidden-want");
+                waitNode = null;
+                }
+                return;
+             }
+            
+		    node = $(".hidden-source").eq(0)
+	        node.removeClass("hidden-source");
+
+            // are we on the last source char?
+	        if (node.next(".hidden-source").length < 1) {
+	            waitNode = node
+	           }
+
+	    });
+	});
+</script>
 <title>ObjectTemplates</title>
 <style type="text/css">
 
@@ -234,6 +286,10 @@ pre.literal-block, pre.doctest-block {
   padding: 5px;
   background-color: lightsteelblue;
 }
+
+.hidden-source {background-color: #AA6666; display:none}
+.hidden-want {background-color: #66AA66; display:none}
+
 
 code, tt {
   color: #000066;

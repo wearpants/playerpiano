@@ -7,14 +7,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<!-- Date: 2009-03-29 -->
 	<!-- Author: Ivan Krozic -->
-    <script type="text/javascript" src="jquery-1.2.6.min.js"></script>
-
-	<!-- left trim -->
-	<script type="text/javascript" charset="utf-8">
-		function ltrim(stringToTrim) {
-			return stringToTrim.replace(/^\s+/,"");
-		}
-	</script>
+    <script type="text/javascript" src="jquery-1.3.2.js"></script>
 
 	<style type="text/css" media="screen">
 		pre { background-color: #C4C4C4; height: 100;}
@@ -33,7 +26,6 @@
     			    s = '<span class="hidden-source">'+text[i]
     			    if (text[i] == '\n' && i != text.length-1) s+='... '
     			    s += '</span>'
-        		    //arr.push('<span class="hidden-source">'+text[i]+'</span>');
         		    arr.push(s)
     		    }
 		    return arr.join("");
@@ -41,7 +33,6 @@
 			
 			
 			$(".doctest-block").each(function(i) {
-			    console.log(this.clientHeight)
 			    $(this).css("min-height", this.clientHeight+"px")
 			    
                     $(this).find("span").each(function(j) {
@@ -49,7 +40,6 @@
                                 $(this).html(spanify($(this).text()))};
                             if ( $(this).hasClass("doctest-want") ) {
                                 $(this).addClass("hidden-want")}
-
                         });
                     });
             
@@ -60,7 +50,7 @@
 			    // wait for an enter to show the want
                 if (waitNode) {
                     if (e.keyCode == 13) {
-                    waitNode.parent().next('.doctest-want').removeClass("hidden-want");
+                    waitNode.parent().next('.hidden-want').removeClass("hidden-want");
                     waitNode = null;
                     }
                     return;
