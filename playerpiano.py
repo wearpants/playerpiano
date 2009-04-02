@@ -8,27 +8,29 @@ homepage: http://playerpiano.googlecode.com/
 Original idea & minor tty frobage from Ian Bicking.  Thanks Ian!
 """
 
-import string
 import json
 import stomp
+import optparse
+
+class Stomper(object):
+    def __init__(self, host, port):
+        self.conn = stomp.Connection(host_and_ports=[(host, port)])
+        self.conn.add_listener(MyListener())
+        self.conn.start()
+        self.conn.connect()
+
+        self.conn.subscribe(destination='/piano/keys', ack='auto')
+        
+        self.char_num = 0 
+
+    def send(self, s):
+        self.char_num += len(s)
+        self.conn.send(json.dumps({'text':s, 'char_num':self.char_num}),
+                       destination='/piano/keys')
 
 class MyListener(object):
     def on_error(self, headers, message):
         print 'received an error %s' % message
-
-conn = stomp.Connection()
-conn.add_listener(MyListener())
-conn.start()
-conn.connect()
-
-conn.subscribe(destination='/piano/keys', ack='auto')
-
-char_num = 0
-def sendstomp(example_num, s):
-    global char_num
-    char_num += len(s)
-    conn.send(json.dumps({'example_num':example_num, 'text':s, 'char_num':char_num}), destination='/piano/keys')
-
 
 from useless_filter import *
 
@@ -39,9 +41,6 @@ import sys
 import re
 import os.path
 
-from pygments import highlight
-from pygments.lexers import PythonLexer
-from pygments.formatters import TerminalFormatter
 
 stdin_fd = None
 old_mask = None
@@ -101,23 +100,47 @@ def doctests_from_module(modname):
     tests = doctest.DocTestFinder().find(module)
     return tests
 
-def usage():
-    print "Usage:", os.path.basename(sys.argv[0]), "FILE"
-    print
-    print "PlayerPiano amazes your friends by running Python doctests"
-    print "in a fake interactive shell."
-    print
-    print "FILE can either be a module name or the path to a text file."
-    print "Press: <random_keys> to 'type' source   <EOF> to exit at the end"
-    print "       <enter> to show results.         <^C> to break." 
+usage = \
+"""Usage: %s <options> <FILE> 
+
+PlayerPiano amazes your friends by running Python doctests
+in a fake interactive shell.
+
+FILE can either be a module name or the path to a text file.
+Press: <random_keys> to 'type' source   <EOF> to exit at the end
+       <enter> to show results.         <^C> to break.
+      
+--color and --stomp cannot be used together."""%os.path.basename(sys.argv[0])
     
 def main():
     
-    if len(sys.argv) != 2:
-        usage()
+    optparser = optparse.OptionParser(usage = usage)
+    optparser.add_option("--stomp", dest="stomp", action="store_true", default=False,
+    help="enable stomp for remote control")
+    optparser.add_option("--stomp-host", default="localhost", help="stomp host")
+    optparser.add_option("--stomp-port", default="61613", type="int", help="stomp host")
+    
+    optparser.add_option("--color", dest="color", action="store_true", default=False,
+    help="enable color")
+    
+    options, args = optparser.parse_args()
+    
+    if len(args) != 1 or (options.stomp and options.color):
+        optparser.print_help()
         sys.exit(1)
 
-    fname=sys.argv[1]
+
+    if options.stomp:
+        stomper = Stomper(options.stomp_host, options.stomp_port).send
+    else:
+        stomper = lambda s: None
+    
+    if options.color:
+        from terminal_highlighter import highlight
+    else:
+        highlight = lambda s: s
+
+    fname=args[0]
     
     if os.path.exists(fname):
         tests = doctests_from_text(fname)
@@ -134,14 +157,8 @@ def main():
             os.system('clear')
         write(banner)
 
-        lexer = PythonLexer()
-        formatter = TerminalFormatter(bg="dark")
-
-        example_count = -1
-
         for test in tests:
             for example in test.examples:
-                example_count += 1
                 char_count = 0 
                 want = example.want
                 source = example.source
@@ -150,10 +167,7 @@ def main():
                 source = doctest_re.sub('', source)
 
                 # highlight
-                #source = highlight(source, lexer, formatter)
-
-                # "fix it up"
-                #source = UselessColorFilter().process_string(source)
+                source = highlight(source)
 
                 # strip trailing newline - added back below
                 assert source[-2] != '\r'
@@ -162,15 +176,15 @@ def main():
                 
                 # write out source code one keypress at a time
                 write('>>> ')
-                sendstomp(example_count, '>>> ')
+                stomper('>>> ')
                 for s in source:
                     c = eat_key()
                     write(s)
-                    sendstomp(example_count, s)
+                    stomper(s)
 
                     if s == '\n':
                         write('... ')
-                        sendstomp(example_count, '... ')
+                        stomper('... ')
                 
                 # slurp extra keys until <enter>
                 while eat_key() != '\r':
@@ -179,8 +193,7 @@ def main():
                 # write out response, adding stripped newline first
                 write('\n')
                 write(want)
-                sendstomp(example_count, '\n')
-                sendstomp(example_count, want)
+                stomper(want+'\n')
         
         # display final prompt & wait for <EOF> to exit
         write('>>> ')
