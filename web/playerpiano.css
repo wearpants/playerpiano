@@ -224,6 +224,7 @@ pre.literal-block, pre.doctest-block {
   border: thin black solid;
   padding: 5px;
   background-color: lightsteelblue;
+  font-size: 130%;
 }
 
 .hidden {background-color: #AA6666; display:none}

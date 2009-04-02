@@ -55,6 +55,7 @@ from docutils.writers import html4css1
 
 raw_js = r"""
 <script type="text/javascript" src="jquery-1.3.2.js"></script>
+<script type="text/javascript" src="jquery.scrollTo.js"></script>
 <script type="text/javascript" src="json2.js"></script>
 <script src="/static/Orbited.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" charset="utf-8">

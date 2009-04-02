@@ -27,6 +27,23 @@ var hide_nodes = function() {
     });
 };
 
+
+
+var display_example = function(example_num) {
+    doctest = $(".doctest-block" ).eq(example_num)
+    doctest.find(".doctest-char").removeClass("hidden");
+};
+
+var display_thru_char = function(char_num) {
+    chars = $(".doctest-char")
+    chars.slice(0, char_num).removeClass("hidden")
+    next_block = $(chars[char_num-1]).parent().parent().prev('p')
+    $.scrollTo(next_block, offset="-200px", duration=1.5)
+    
+
+};
+
+
 var main = function() {
         var client = new STOMPClient();
         // Set up STOMP event handlers before connecting.
@@ -35,29 +52,13 @@ var main = function() {
         };
         client.onmessageframe = function(frame) {
             var vals = JSON.parse(frame.body)
-            display_thru_char(vals.example_num, vals.char_num)
+            display_thru_char(vals.char_num)
         };
         
         client.connect('localhost', 61613);
 		
 		hide_nodes();
 };
-
-var display_example = function(example_num) {
-    doctest = $(".doctest-block" ).eq(example_num)
-    doctest.find(".doctest-char").removeClass("hidden");
-};
-
-var display_thru_char = function(example_num, char_num) {
-    doctest =$(".doctest-block" ).eq(example_num)
-    hiddens = doctest.find(".doctest-char")
-    console.log("hiddens "+hiddens.length+" charnum "+char_num+" example "+example_num)
-    for (var i = 0; i < char_num; i++) {
-        $(hiddens[i]).removeClass("hidden")
-    
-    };
-};
-
 
 // var main2 = function() {        
 //     $(window).bind('keypress', function(e) {handle_keypress(e.keyCode)}; );
