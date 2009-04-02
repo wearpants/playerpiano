@@ -126,13 +126,13 @@ class DevNullLogger(object):
 #
 # add logging if available
 #
-try:
-    import logging
-    import logging.config
-    logging.config.fileConfig("stomp.log.conf")
-    log = logging.getLogger('root')
-except ImportError:
-    log = DevNullLogger()
+# try:
+#     import logging
+#     import logging.config
+#     logging.config.fileConfig("stomp.log.conf")
+#     log = logging.getLogger('root')
+# except ImportError:
+log = DevNullLogger()
 
     
 class ConnectionClosedException(Exception):

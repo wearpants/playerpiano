@@ -225,6 +225,7 @@ pre.literal-block, pre.doctest-block {
   padding: 5px;
   background-color: lightsteelblue;
   font-size: 130%;
+  max-width: 600px;
 }
 
 .hidden {background-color: #AA6666; display:none}
