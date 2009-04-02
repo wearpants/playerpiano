@@ -1,5 +1,5 @@
 
-alert("hi")
+alert("hi from playerpiano")
 // SPANify
 var spanify = function(text, hide) {
 
@@ -43,7 +43,6 @@ var display_thru_char = function(char_num) {
     chars.slice(0, char_num).removeClass("hidden")
     var next_block = $(chars[char_num-1]).parent().parent().prev('p')[0]
     if (next_block != last_block) {
-      alert(next_block)
       $.scrollTo(next_block, offset="-200px", duration=1.5)
       console.log("Scrolling to: "+$(next_block).text())
       last_block = next_block;  
