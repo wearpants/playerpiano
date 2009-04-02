@@ -1,3 +1,5 @@
+
+alert("hi")
 // SPANify
 var spanify = function(text, hide) {
 
@@ -30,17 +32,22 @@ var hide_nodes = function() {
 
 
 var display_example = function(example_num) {
-    doctest = $(".doctest-block" ).eq(example_num)
+    var doctest = $(".doctest-block" ).eq(example_num)
     doctest.find(".doctest-char").removeClass("hidden");
 };
 
-var display_thru_char = function(char_num) {
-    chars = $(".doctest-char")
-    chars.slice(0, char_num).removeClass("hidden")
-    next_block = $(chars[char_num-1]).parent().parent().prev('p')
-    $.scrollTo(next_block, offset="-200px", duration=1.5)
-    
+var last_block = null;
 
+var display_thru_char = function(char_num) {
+    var chars = $(".doctest-char")
+    chars.slice(0, char_num).removeClass("hidden")
+    var next_block = $(chars[char_num-1]).parent().parent().prev('p')[0]
+    if (next_block != last_block) {
+      alert(next_block)
+      $.scrollTo(next_block, offset="-200px", duration=1.5)
+      console.log("Scrolling to: "+$(next_block).text())
+      last_block = next_block;  
+    };
 };
 
 
