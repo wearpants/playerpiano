@@ -226,9 +226,7 @@ pre.literal-block, pre.doctest-block {
   background-color: lightsteelblue;
 }
 
-.hidden-source {background-color: #AA6666; display:none}
-.hidden-want {background-color: #66AA66; display:none}
-
+.hidden {background-color: #AA6666; display:none}
 
 code, tt {
   color: #000066;

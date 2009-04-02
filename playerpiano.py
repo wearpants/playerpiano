@@ -9,15 +9,12 @@ Original idea & minor tty frobage from Ian Bicking.  Thanks Ian!
 """
 
 import string
-
+import json
 import stomp
 
 class MyListener(object):
     def on_error(self, headers, message):
         print 'received an error %s' % message
-
-    def on_message(self, headers, message):
-        print 'received headers %r message %s' % (headers, message)
 
 conn = stomp.Connection()
 conn.add_listener(MyListener())
@@ -26,69 +23,14 @@ conn.connect()
 
 conn.subscribe(destination='/piano/keys', ack='auto')
 
-def sendstomp(s):
-    conn.send(s, destination='/piano/keys')
+char_num = 0
+def sendstomp(example_num, s):
+    global char_num
+    char_num += len(s)
+    conn.send(json.dumps({'example_num':example_num, 'text':s, 'char_num':char_num}), destination='/piano/keys')
 
 
-
-class UselessColorFilter(object):
-    """a finite state machine that eats duplicate equivalent ANSi color codes, as should be 'obvious', from the source. -asheesh
-    """
-    def __init__(self):
-        self.state = 'START'
-        self.growing_color = ''
-        self.last_color = None
-    def handle_char(self, char):
-        if self.state == 'START':
-            if char in string.printable:
-                # Always emit the color we have been growing; usually empty string
-                return char
-            else:
-                assert char == '\x1b'
-                assert self.growing_color == ''
-                self.growing_color += char
-                self.state = 'JUST_GOT_X1B'
-        elif self.state == 'JUST_GOT_X1B':
-            assert self.growing_color == '\x1b'
-            assert char == '['
-            self.growing_color += char
-            self.state = 'GROWING_COLOR'
-        elif self.state == 'GROWING_COLOR':
-            if char == 'm':
-                # Then the color is finished!
-                # Was the color we just grew the last_color?
-                # Tack on the space for good measure.
-                self.growing_color += char
-
-                final_color = self.growing_color
-                should_print_this = (self.growing_color != self.last_color)
-
-                # do some cleanup
-                self.last_color = final_color
-                self.growing_color = ''
-
-                # We go back to the START
-                self.state = 'START'
-
-                if should_print_this:
-                    return final_color
-            else:
-                self.growing_color += char
-
-    def process_string(self, s):
-        """"@yields a list of 1-char tokens, with a possible control code prefix
-        
-        FIXME: asheesh make me a generator.
-        """
-        generated = []
-        for char in s:
-            ret = self.handle_char(char)
-            if ret is None:
-                continue
-            else:
-                generated.append(ret)
-        return generated
-
+from useless_filter import *
 
 import doctest
 import termios
@@ -131,7 +73,6 @@ def write(s):
     s = s.replace('\n', '\r\n')
     sys.stdout.write(s)
     sys.stdout.flush()
-    sendstomp(s)
     
 banner = '''Python %s on %s\nType "help", "copyright", "credits" or "license" for more information.\n'''%(sys.version, sys.platform)
 
@@ -196,8 +137,12 @@ def main():
         lexer = PythonLexer()
         formatter = TerminalFormatter(bg="dark")
 
+        example_count = -1
+
         for test in tests:
             for example in test.examples:
+                example_count += 1
+                char_count = 0 
                 want = example.want
                 source = example.source
                 
@@ -205,10 +150,10 @@ def main():
                 source = doctest_re.sub('', source)
 
                 # highlight
-                source = highlight(source, lexer, formatter)
+                #source = highlight(source, lexer, formatter)
 
                 # "fix it up"
-                source = UselessColorFilter().process_string(source)
+                #source = UselessColorFilter().process_string(source)
 
                 # strip trailing newline - added back below
                 assert source[-2] != '\r'
@@ -217,12 +162,15 @@ def main():
                 
                 # write out source code one keypress at a time
                 write('>>> ')
+                sendstomp(example_count, '>>> ')
                 for s in source:
                     c = eat_key()
                     write(s)
+                    sendstomp(example_count, s)
 
                     if s == '\n':
                         write('... ')
+                        sendstomp(example_count, '... ')
                 
                 # slurp extra keys until <enter>
                 while eat_key() != '\r':
@@ -231,6 +179,8 @@ def main():
                 # write out response, adding stripped newline first
                 write('\n')
                 write(want)
+                sendstomp(example_count, '\n')
+                sendstomp(example_count, want)
         
         # display final prompt & wait for <EOF> to exit
         write('>>> ')

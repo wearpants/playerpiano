@@ -22,16 +22,24 @@ nodes.node_class_names.append("doctest_source")
 nodes.node_class_names.append("doctest_want")
 
 def better_doctest_block(data):
-   ret = nodes.doctest_block()
-   # Step 1: Parse the doctest
-   test = doctest.DocTestParser().get_doctest(data, {}, "name", "filename", 0)
-   # Step 2: Loop over the sources (inputs) and wants (outputs)
-   for example in test.examples:
-       source = nodes.doctest_source(example.source, example.source)
-       want = nodes.doctest_want(example.want, example.want)
-       ret.children.append(source)
-       ret.children.append(want)
-   return ret
+    ret = nodes.doctest_block()
+    # Step 1: Parse the doctest
+    test = doctest.DocTestParser().get_doctest(data, {}, "name", "filename", 0)
+    # Step 2: Loop over the sources (inputs) and wants (outputs)
+    for example in test.examples:
+        s = example.source.strip().split('\n')
+        for i, l in enumerate(s):
+            if i == 0: s[0] = '>>> ' + l
+            else: s[i] = '... ' + l
+        s = "\n".join(s)
+        if not s.endswith('\n'):
+            s += "\n"
+        
+        source = nodes.doctest_source(s, s)
+        want = nodes.doctest_want(example.want, example.want)
+        ret.children.append(source)
+        ret.children.append(want)
+    return ret
  
 nodes.better_doctest_block = better_doctest_block
 
@@ -47,55 +55,18 @@ from docutils.writers import html4css1
 
 raw_js = r"""
 <script type="text/javascript" src="jquery-1.3.2.js"></script>
+<script type="text/javascript" src="json2.js"></script>
+<script src="/static/Orbited.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" charset="utf-8">
-	$(document).ready(function() {		
-		var spanify = function(text) {
+    // needed by stomp.js
+    TCPSocket = Orbited.TCPSocket;
+</script>
+<script src="/static/protocols/stomp/stomp.js" type="text/javascript" charset="utf-8"></script>
 
-			var arr = ['<span class="hidden-source">&gt;&gt;&gt; </span>']
-			for (var i = 0; i < text.length; i++) {
-			    s = '<span class="hidden-source">'+text[i]
-			    if (text[i] == '\n' && i != text.length-1) s+='... '
-			    s += '</span>'
-    		    arr.push(s)
-		    }
-	    return arr.join("");
-    };
-		
-		
-		$(".doctest-block").each(function(i) {
-		    $(this).css("min-height", this.clientHeight+"px")
-		    
-                $(this).find("span").each(function(j) {
-                        if ( $(this).hasClass("doctest-source") ) {
-                            $(this).html(spanify($(this).text()))};
-                        if ( $(this).hasClass("doctest-want") ) {
-                            $(this).addClass("hidden-want")}
-                    });
-                });
-        
-        
-        var waitNode = null;
-        
-		$(window).bind('keypress', function(e) {
-		    // wait for an enter to show the want
-            if (waitNode) {
-                if (e.keyCode == 13) {
-                waitNode.parent().next('.hidden-want').removeClass("hidden-want");
-                waitNode = null;
-                }
-                return;
-             }
-            
-		    node = $(".hidden-source").eq(0)
-	        node.removeClass("hidden-source");
+<script src="playerpiano.js" type="text/javascript"></script>
 
-            // are we on the last source char?
-	        if (node.next(".hidden-source").length < 1) {
-	            waitNode = node
-	           }
-
-	    });
-	});
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(main);
 </script>
 """
 
