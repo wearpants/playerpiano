@@ -9,8 +9,19 @@ Original idea & minor tty frobage from Ian Bicking.  Thanks Ian!
 """
 
 import json
-import stomp
 import optparse
+import doctest
+import termios
+import tty
+import sys
+import re
+import os.path
+
+print sys.path
+
+from playerpiano import stomp
+from playerpiano.terminal_highlighter import highlight as _highlight
+
 
 class Stomper(object):
     def __init__(self, host, port):
@@ -31,16 +42,6 @@ class Stomper(object):
 class MyListener(object):
     def on_error(self, headers, message):
         print 'received an error %s' % message
-
-from useless_filter import *
-
-import doctest
-import termios
-import tty
-import sys
-import re
-import os.path
-
 
 stdin_fd = None
 old_mask = None
@@ -136,7 +137,7 @@ def main():
         stomper = lambda s: None
     
     if options.color:
-        from terminal_highlighter import highlight
+        highlight = _highlight
     else:
         highlight = lambda s: s
 
