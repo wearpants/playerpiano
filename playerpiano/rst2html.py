@@ -101,4 +101,8 @@ writer.translator_class = MyTranslator
 description = ('Generates (X)HTML documents from standalone reStructuredText '
               'sources.  ' + default_description)
 
-publish_cmdline(writer=writer, description=description)
+def main():
+    publish_cmdline(writer=writer, description=description)
+
+if __name__ == '__main__':
+    main()

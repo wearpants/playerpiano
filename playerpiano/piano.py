@@ -17,8 +17,6 @@ import sys
 import re
 import os.path
 
-print sys.path
-
 from playerpiano import stomp
 from playerpiano.terminal_highlighter import highlight as _highlight
 

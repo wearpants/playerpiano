@@ -8,7 +8,12 @@ setup(name='PlayerPiano',
       author='Peter Fein',
       author_email='pfein@pobox.com',
       url='http://playerpiano.googlecode.com',
-      scripts=['bin/playerpiano.py', 'bin/player_rst.py', 'bin/recorderpiano.py'],
+      entry_points = {
+          'console_scripts': [
+              'playerpiano=playerpiano.piano:main',
+              'rst2html_piano=playerpiano.rst2html:main',
+              'recorderpiano=playerpiano.recorder:main',
+          ]},
       packages=find_packages(),
       install_requires=['pygments'],
        

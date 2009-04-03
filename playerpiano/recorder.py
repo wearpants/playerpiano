@@ -20,9 +20,12 @@ class RecordingConsole(code.InteractiveConsole):
         code.InteractiveConsole.write(self, data)
         self.output.write(data)
 
-if __name__ == '__main__':
+def main():
     if len(sys.argv) !=2:
         print "Usage: %s LOGFILE"%os.path.basename(sys.argv[0])
     else:
         console = RecordingConsole(sys.argv[1])
         console.interact()
+
+if __name__ == '__main__':
+    main()
