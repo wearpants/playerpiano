@@ -1,0 +1,14 @@
+PlayerPiano amazes your friends by running Python doctests in a fake interactive shell.
+
+playerpiano plays back a recorded shell session in a terminal.  It can also be used to drive the browser client.
+
+recorderpiano can be used to record a shell session for later playback. 
+
+rst2html_piano converts restructured text to html for use with browser-based playback.  Run it like:
+
+  player_rst.py --link-stylesheet --stylesheet-path playerpiano.css my_docs.txt > web/my_docs.html
+
+To use the browser client:
+Install & start orbited: orbited -c orbited.cfg
+Browse to http://localhost:8000/player/my_docs.html
+Run playerpiano in a terminal & start typing.  Keys should appear in the browser.
