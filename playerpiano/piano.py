@@ -17,29 +17,7 @@ import sys
 import re
 import os.path
 
-from playerpiano import stomp
-from playerpiano.terminal_highlighter import highlight as _highlight
-
-
-class Stomper(object):
-    def __init__(self, host, port):
-        self.conn = stomp.Connection(host_and_ports=[(host, port)])
-        self.conn.add_listener(MyListener())
-        self.conn.start()
-        self.conn.connect()
-
-        self.conn.subscribe(destination='/piano/keys', ack='auto')
-        
-        self.char_num = 0 
-
-    def send(self, s):
-        self.char_num += len(s)
-        self.conn.send(json.dumps({'text':s, 'char_num':self.char_num}),
-                       destination='/piano/keys')
-
-class MyListener(object):
-    def on_error(self, headers, message):
-        print 'received an error %s' % message
+from terminal_highlighter import highlight as _highlight
 
 stdin_fd = None
 old_mask = None
@@ -130,9 +108,7 @@ def main():
 
 
     if options.stomp:
-        stomper = Stomper(options.stomp_host, options.stomp_port).send
-    else:
-        stomper = lambda s: None
+        stomp_target.add_target(targets) # XXX Yeah!
     
     if options.color:
         highlight = _highlight
@@ -175,15 +151,12 @@ def main():
                 
                 # write out source code one keypress at a time
                 write('>>> ')
-                stomper('>>> ')
                 for s in source:
                     c = eat_key()
                     write(s)
-                    stomper(s)
 
                     if s == '\n':
                         write('... ')
-                        stomper('... ')
                 
                 # slurp extra keys until <enter>
                 while eat_key() != '\r':
@@ -192,7 +165,6 @@ def main():
                 # write out response, adding stripped newline first
                 write('\n')
                 write(want)
-                stomper(want+'\n')
         
         # display final prompt & wait for <EOF> to exit
         write('>>> ')
