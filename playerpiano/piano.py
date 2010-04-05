@@ -8,16 +8,13 @@ homepage: http://playerpiano.googlecode.com/
 Original idea & minor tty frobage from Ian Bicking.  Thanks Ian!
 """
 
-import json
-import optparse
 import doctest
 import termios
 import tty
 import sys
+import optparse
 import re
 import os.path
-
-from terminal_highlighter import highlight as _highlight
 
 stdin_fd = None
 old_mask = None
@@ -43,12 +40,6 @@ def eat_key():
 def restore_tty():
     """restore the terminal to its original state"""
     termios.tcsetattr(stdin_fd, termios.TCSADRAIN, old_mask)
-
-def write(s):
-    """write s to stdout"""
-    s = s.replace('\n', '\r\n')
-    sys.stdout.write(s)
-    sys.stdout.flush()
     
 banner = '''Python %s on %s\nType "help", "copyright", "credits" or "license" for more information.\n'''%(sys.version, sys.platform)
 
@@ -88,10 +79,18 @@ Press: <random_keys> to 'type' source   <EOF> to exit at the end
        <enter> to show results.         <^C> to break.
       
 --color and --stomp cannot be used together."""%os.path.basename(sys.argv[0])
-    
+
+
+targets = {} # places we write to
+
+def write(s):
+    for t in targets.itervalues():
+        t(s)
+
 def main():
     
     optparser = optparse.OptionParser(usage = usage)
+    optparser.add_option("--no-terminal", dest="terminal", action="store_false", default=True)
     optparser.add_option("--stomp", dest="stomp", action="store_true", default=False,
     help="enable stomp for remote control")
     optparser.add_option("--stomp-host", default="localhost", help="stomp host")
@@ -106,14 +105,17 @@ def main():
         optparser.print_help()
         sys.exit(1)
 
+    if options.terminal:
+        import terminal_target
+        targets[terminal_target] = terminal_target.make_target(options)
 
     if options.stomp:
-        stomp_target.add_target(targets) # XXX Yeah!
-    
+        import stomp_target
+        targets[stomp_target] = stomp_target.make_target(options)
+
     if options.color:
-        highlight = _highlight
-    else:
-        highlight = lambda s: s
+        from terminal_highlighter import highlight as _highlight
+        
 
     fname=args[0]
     
@@ -142,7 +144,8 @@ def main():
                 source = doctest_re.sub('', source)
 
                 # highlight
-                source = highlight(source)
+                if options.color:
+                    source = _highlight(source)
 
                 # strip trailing newline - added back below
                 assert source[-2] != '\r'
@@ -174,7 +177,9 @@ def main():
         
     finally:
         restore_tty()
-        pass
+        for t in list(targets.iterkeys()):
+            del targets[t]
+            t.free_target()
 
 if __name__ == '__main__':
     main()

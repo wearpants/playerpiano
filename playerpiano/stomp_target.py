@@ -1,4 +1,5 @@
-from playerpiano import stomp
+import json
+import stomp
 
 class Stomper(object):
     def __init__(self, host, port):
@@ -22,7 +23,7 @@ class MyListener(object):
 
 stomper = None
 
-def make_target():
+def make_target(options):
     global stomper
     stomper = Stomper(options.stomp_host, options.stomp_port)
     return stomper.send
