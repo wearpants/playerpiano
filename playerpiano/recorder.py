@@ -6,7 +6,8 @@ import sys
 import os.path
 
 class RecordingConsole(code.InteractiveConsole):
-
+    """A python shell that records to the file `output`"""
+    
     def __init__(self, output=None, *args, **kwargs):
         code.InteractiveConsole.__init__(self, *args, **kwargs)
         self.output=file(output, 'w')
