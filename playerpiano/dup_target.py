@@ -1,4 +1,5 @@
 import sys
+import os.path
 
 outfile = None
 
@@ -10,8 +11,14 @@ def write(s):
 
 def make_target(options):
     global outfile
-    outfile = open(options.dup, 'wb', 0)
+    if os.path.exists(options.fifo):
+        os.unlink(options.fifo)
+    os.mkfifo(options.fifo)
+    outfile = open(options.fifo, 'a', 0)
+    write(chr(27)+"[2J") # clear the screen
+    write(chr(27)+"[H")
     return write
     
 def free_target():
     outfile.close()
+    os.unlink(outfile.name)

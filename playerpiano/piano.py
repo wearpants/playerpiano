@@ -89,8 +89,8 @@ def write(s):
 def main():
     
     optparser = optparse.OptionParser(usage = usage)
-    optparser.add_option("--dup", dest="dup", action="store", default=None,
-    help="duplicate output to a file")
+    optparser.add_option("--fifo", dest="fifo", action="store", default=None,
+    help="duplicate output to a fifo")
     optparser.add_option("--no-terminal", dest="terminal", action="store_false", default=True,
     help="disable output on main terminal")    
     optparser.add_option("--color", dest="color", action="store_true", default=False,
@@ -106,7 +106,7 @@ def main():
         import terminal_target
         targets[terminal_target] = terminal_target.make_target(options)
 
-    if options.dup:
+    if options.fifo:
         import dup_target
         targets[dup_target] = dup_target.make_target(options)
 
