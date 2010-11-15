@@ -1,2 +1,2 @@
-include README
-include web *.html *.js *.css
+include README LICENSE sample.txt
+recursive-include playerpiano *.py
