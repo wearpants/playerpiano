@@ -77,8 +77,7 @@ in a fake interactive shell.
 FILE can either be a module name or the path to a text file.
 Press: <random_keys> to 'type' source   <EOF> to exit at the end
        <enter> to show results.         <^C> to break.
-      
---color and --stomp cannot be used together."""%os.path.basename(sys.argv[0])
+"""%os.path.basename(sys.argv[0])
 
 
 targets = {} # places we write to
@@ -90,28 +89,19 @@ def write(s):
 def main():
     
     optparser = optparse.OptionParser(usage = usage)
-    optparser.add_option("--no-terminal", dest="terminal", action="store_false", default=True)
-    optparser.add_option("--stomp", dest="stomp", action="store_true", default=False,
-    help="enable stomp for remote control")
-    optparser.add_option("--stomp-host", default="localhost", help="stomp host")
-    optparser.add_option("--stomp-port", default="61613", type="int", help="stomp host")
-    
+    optparser.add_option("--no-terminal", dest="terminal", action="store_false", default=True)    
     optparser.add_option("--color", dest="color", action="store_true", default=False,
     help="enable color")
     
     options, args = optparser.parse_args()
     
-    if len(args) != 1 or (options.stomp and options.color):
+    if len(args) != 1:
         optparser.print_help()
         sys.exit(1)
 
     if options.terminal:
         import terminal_target
         targets[terminal_target] = terminal_target.make_target(options)
-
-    if options.stomp:
-        import stomp_target
-        targets[stomp_target] = stomp_target.make_target(options)
 
     if options.color:
         from terminal_highlighter import highlight as _highlight

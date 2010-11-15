@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='PlayerPiano',
-      version='0.02',
+      version='0.1',
       description='PlayerPiano amazes your friends by running Python doctests in a fake interactive shell.',
       author='Peter Fein',
       author_email='pfein@pobox.com',
@@ -11,11 +11,9 @@ setup(name='PlayerPiano',
       entry_points = {
           'console_scripts': [
               'playerpiano=playerpiano.piano:main',
-              'rst2html_piano=playerpiano.rst2html:main',
               'recorderpiano=playerpiano.recorder:main',
           ]},
       packages=find_packages(),
       include_package_data = True,
       install_requires=['pygments'],
-       
      )
