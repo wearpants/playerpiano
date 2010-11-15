@@ -14,7 +14,7 @@ class RecordingConsole(code.InteractiveConsole):
     
     def raw_input(self, prompt):
         ri = code.InteractiveConsole.raw_input(self, prompt)
-        self.output.write(prompt+' '+ri+'\n')
+        self.output.write(prompt+ri+'\n')
         return ri
 
     def write(self, data):

@@ -1,2 +1,2 @@
-include README LICENSE sample.txt
+include README LICENSE VERSION sample.txt
 recursive-include playerpiano *.py

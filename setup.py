@@ -3,14 +3,13 @@
 from setuptools import setup, find_packages
 
 # this horrible mess brought to you by the crap that is Python distutils. Just use CPAN.
+import os.path
 version_file = os.path.join(os.path.dirname(__file__), 'VERSION')
 VERSION = open(version_file).read().strip().split('.')
 release = '.'.join(VERSION)
 
 setup(name='PlayerPiano',
-      author = 'Peter Fein',
-      author_email = 'pfein@pobox.com',
-      version=version,
+      version=release,
       description='Amazes your friends by running Python doctests in a fake interactive shell.',
       author='Peter Fein',
       author_email='pfein@pobox.com',
