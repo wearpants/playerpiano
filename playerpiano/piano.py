@@ -107,8 +107,8 @@ def main():
         targets[terminal_target] = terminal_target.make_target(options)
 
     if options.fifo:
-        import dup_target
-        targets[dup_target] = dup_target.make_target(options)
+        import fifo_target
+        targets[fifo_target] = fifo_target.make_target(options)
 
     if options.color:
         from terminal_highlighter import highlight as _highlight
