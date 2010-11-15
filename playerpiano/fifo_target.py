@@ -16,7 +16,7 @@ def make_target(options):
     os.mkfifo(options.fifo)
     outfile = open(options.fifo, 'a', 0)
     write(chr(27)+"[2J") # clear the screen
-    write(chr(27)+"[H")
+    write(chr(27)+"[H") # move to top-left corner
     return write
     
 def free_target():
