@@ -6,12 +6,12 @@ PlayerPiano amazes your friends by running Python doctests in a fake interactive
 
 ``playerpiano`` plays back a recorded shell session in a terminal.
 
-``recorderpiano`` can be used to record a shell session for later playback. 
+``recorderpiano`` can be used to record a shell session for later playback.
 
 ****************************************
 Usage
 ****************************************
-Run ``playerpiano <options> <FILE>``, where FILE is a file containing doctests.
+Run ``playerpiano <options> <FILE>``, where FILE is a file containing doctests or the name of a module. Do not pass ``mymodule.py`` directly, it will confuse the doctest parser. Use ``mymodule`` instead.
 
 Pressing any keys will type source lines, stop at the end of each source block.
 
