@@ -45,11 +45,19 @@ banner = '''Python %s on %s\nType "help", "copyright", "credits" or "license" fo
 
 doctest_re=re.compile('# *doctest.*$')
 
+if sys.version_info[0] == 2:
+    def load_testfile(filename):
+        return doctest._load_testfile(filename, None, False)
+else:
+    # For python3 compatibility
+    def load_testfile(filename):
+        return doctest._load_testfile(filename, None, False, 'utf8')
+
 # based on doctest.testfile
 def doctests_from_text(filename, encoding=None):
 
     # Relativize the path
-    text, filename = doctest._load_testfile(filename, None, False)
+    text, filename = load_testfile(filename)
 
     name = os.path.basename(filename)
 
@@ -83,7 +91,7 @@ Press: <random_keys> to 'type' source   <EOF> to exit at the end
 targets = {} # places we write to
 
 def write(s):
-    for t in targets.itervalues():
+    for t in targets.values():
         t(s)
 
 def main():
@@ -103,15 +111,15 @@ def main():
         sys.exit(1)
 
     if options.terminal:
-        import terminal_target
+        from playerpiano import terminal_target
         targets[terminal_target] = terminal_target.make_target(options)
 
     if options.fifo:
-        import fifo_target
+        from playerpiano import fifo_target
         targets[fifo_target] = fifo_target.make_target(options)
 
     if options.color:
-        from terminal_highlighter import highlight as _highlight
+        from playerpiano.terminal_highlighter import highlight as _highlight
         
 
     fname=args[0]
@@ -174,7 +182,7 @@ def main():
         
     finally:
         restore_tty()
-        for t in list(targets.iterkeys()):
+        for t in list(targets.keys()):
             del targets[t]
             t.free_target()
 

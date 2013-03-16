@@ -10,7 +10,7 @@ class RecordingConsole(code.InteractiveConsole):
     
     def __init__(self, output=None, *args, **kwargs):
         code.InteractiveConsole.__init__(self, *args, **kwargs)
-        self.output=file(output, 'w')
+        self.output = open(output, 'w')
     
     def raw_input(self, prompt):
         ri = code.InteractiveConsole.raw_input(self, prompt)
@@ -23,7 +23,7 @@ class RecordingConsole(code.InteractiveConsole):
 
 def main():
     if len(sys.argv) !=2:
-        print "Usage: %s LOGFILE"%os.path.basename(sys.argv[0])
+        print("Usage: %s LOGFILE" % os.path.basename(sys.argv[0]))
     else:
         console = RecordingConsole(sys.argv[1])
         console.interact()
