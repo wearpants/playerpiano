@@ -12,8 +12,8 @@ setup(name='PlayerPiano',
       version=release,
       description='Amazes your friends by running Python doctests in a fake interactive shell.',
       author='Peter Fein',
-      author_email='pfein@pobox.com',
-      url='http://playerpiano.googlecode.com',
+      author_email='pete@wearpants.org',
+      url='https://github.com/wearpants/playerpiano',
       entry_points = {
           'console_scripts': [
               'playerpiano=playerpiano.piano:main',
