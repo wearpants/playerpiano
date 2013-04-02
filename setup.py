@@ -23,7 +23,7 @@ setup(name='PlayerPiano',
       include_package_data = True,
       install_requires=['pygments'],
       license="BSD",
-      long_description=open("README").read(),
+      long_description=open("README.rst").read(),
       classifiers = [
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
