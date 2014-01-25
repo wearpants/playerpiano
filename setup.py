@@ -5,6 +5,9 @@ from setuptools import setup, find_packages
 with open('VERSION') as version_stream:
     version = version_stream.read().strip()
 
+with open('README.rst') as readme_stream:
+    readme = readme_stream.read()
+
 setup(
     name='PlayerPiano',
     version=version,
@@ -21,7 +24,7 @@ setup(
     include_package_data = True,
     install_requires=['pygments'],
     license="BSD",
-    long_description=open("README.rst").read(),
+    long_description=readme,
     classifiers = [
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
