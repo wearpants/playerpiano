@@ -11,7 +11,8 @@ with open('README.rst') as readme_stream:
 setup(
     name='PlayerPiano',
     version=version,
-    description='Amazes your friends by running Python doctests in a fake interactive shell.',
+    description='Amazes your friends by running Python doctests in a fake '
+        'interactive shell.',
     author='Peter Fein',
     author_email='pete@wearpants.org',
     url='https://github.com/wearpants/playerpiano',
