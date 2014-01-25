@@ -12,7 +12,7 @@ import doctest
 import termios
 import tty
 import sys
-import optparse
+import argparse
 import re
 import os.path
 import importlib
@@ -133,29 +133,25 @@ def run(tests, highlight):
 
 
 def main():
-    """Usage: %prog <options> <FILE>
+    """%(prog)s <options> <FILE>
 
     PlayerPiano amazes your friends by running Python doctests
     in a fake interactive shell.
 
-    FILE can either be a module name or the path to a text file.
     Press: <random_keys> to 'type' source   <EOF> to exit at the end
            <enter> to show results.         <^C> to break.
     """
 
-    optparser = optparse.OptionParser(usage=main.__doc__)
-    optparser.add_option("--fifo", dest="fifo", action="store", default=None,
+    parser = argparse.ArgumentParser(usage=main.__doc__)
+    parser.add_argument("--fifo", dest="fifo", action="store", default=None,
     help="duplicate output to a fifo")
-    optparser.add_option("--no-terminal", dest="terminal", action="store_false", default=True,
+    parser.add_argument("--no-terminal", dest="terminal", action="store_false", default=True,
     help="disable output on main terminal")
-    optparser.add_option("--color", dest="color", action="store_true", default=False,
+    parser.add_argument("--color", dest="color", action="store_true", default=False,
     help="enable color")
-
-    options, args = optparser.parse_args()
-
-    if len(args) != 1:
-        optparser.print_help()
-        sys.exit(1)
+    parser.add_argument('file',
+    help="either a module name or the path to a text file")
+    options = parser.parse_args()
 
     if options.terminal:
         from playerpiano import terminal_target
@@ -171,12 +167,10 @@ def main():
     else:
         highlight = lambda x: x
 
-    fname=args[0]
-
-    if os.path.exists(fname):
-        tests = doctests_from_text(fname)
+    if os.path.exists(options.file):
+        tests = doctests_from_text(options.file)
     else:
-        tests = doctests_from_module(fname)
+        tests = doctests_from_module(options.file)
 
     try:
         with frob_tty():
