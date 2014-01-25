@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """PlayerPiano amazes your friends by running Python doctests in a fake interactive shell.
 
-author: Peter Fein 
+author: Peter Fein
 email: pfein@pobox.com
 homepage: http://playerpiano.googlecode.com/
 
@@ -40,7 +40,7 @@ def eat_key():
 def restore_tty():
     """restore the terminal to its original state"""
     termios.tcsetattr(stdin_fd, termios.TCSADRAIN, old_mask)
-    
+
 banner = '''Python %s on %s\nType "help", "copyright", "credits" or "license" for more information.\n'''%(sys.version, sys.platform)
 
 doctest_re=re.compile('# *doctest.*$')
@@ -66,18 +66,18 @@ def doctests_from_text(filename, encoding=None):
 
     # Read the file, convert it to a test, and run it.
     test = doctest.DocTestParser().get_doctest(text, {}, name, filename, 0)
-    
+
     return [test]
 
 
 def doctests_from_module(modname):
     # need a fromlist b/c __import__ is stupid
-    module = __import__(modname, globals(), {}, '__name__')    
+    module = __import__(modname, globals(), {}, '__name__')
     tests = doctest.DocTestFinder().find(module)
     return tests
 
 usage = \
-"""Usage: %s <options> <FILE> 
+"""Usage: %s <options> <FILE>
 
 PlayerPiano amazes your friends by running Python doctests
 in a fake interactive shell.
@@ -95,17 +95,17 @@ def write(s):
         t(s)
 
 def main():
-    
+
     optparser = optparse.OptionParser(usage = usage)
     optparser.add_option("--fifo", dest="fifo", action="store", default=None,
     help="duplicate output to a fifo")
     optparser.add_option("--no-terminal", dest="terminal", action="store_false", default=True,
-    help="disable output on main terminal")    
+    help="disable output on main terminal")
     optparser.add_option("--color", dest="color", action="store_true", default=False,
     help="enable color")
-    
+
     options, args = optparser.parse_args()
-    
+
     if len(args) != 1:
         optparser.print_help()
         sys.exit(1)
@@ -120,15 +120,15 @@ def main():
 
     if options.color:
         from playerpiano.terminal_highlighter import highlight as _highlight
-        
+
 
     fname=args[0]
-    
+
     if os.path.exists(fname):
         tests = doctests_from_text(fname)
     else:
-        tests = doctests_from_module(fname)    
-    
+        tests = doctests_from_module(fname)
+
     try:
         frob_tty()
 
@@ -141,10 +141,10 @@ def main():
 
         for test in tests:
             for example in test.examples:
-                char_count = 0 
+                char_count = 0
                 want = example.want
                 source = example.source
-                
+
                 # strip doctest directives
                 source = doctest_re.sub('', source)
 
@@ -156,7 +156,7 @@ def main():
                 assert source[-2] != '\r'
                 if source[-1] == '\n':
                     source = source[:-1]
-                
+
                 # write out source code one keypress at a time
                 write('>>> ')
                 for s in source:
@@ -165,21 +165,21 @@ def main():
 
                     if s == '\n':
                         write('... ')
-                
+
                 # slurp extra keys until <enter>
                 while eat_key() != '\r':
                     pass
-                
+
                 # write out response, adding stripped newline first
                 write('\n')
                 write(want)
-        
+
         # display final prompt & wait for <EOF> to exit
         write('>>> ')
         while eat_key() != '\x04': # ^D
             pass
         write('\n')
-        
+
     finally:
         restore_tty()
         for t in list(targets.keys()):
