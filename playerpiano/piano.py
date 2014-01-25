@@ -74,8 +74,7 @@ def doctests_from_text(filename, encoding=None):
 
 
 def doctests_from_module(modname):
-    # need a fromlist b/c __import__ is stupid
-    module = __import__(modname, globals(), {}, '__name__')
+    module = importlib.import_module(modname)
     tests = doctest.DocTestFinder().find(module)
     return tests
 
