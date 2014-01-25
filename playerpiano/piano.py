@@ -15,6 +15,7 @@ import sys
 import optparse
 import re
 import os.path
+import importlib
 
 stdin_fd = None
 old_mask = None
@@ -85,6 +86,54 @@ def write(s):
     for t in targets.values():
         t(s)
 
+def run(tests, highlight):
+    # clear the screen to hide the command we were invoked with & write banner
+    if sys.platform == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
+    write(banner)
+
+    for test in tests:
+        for example in test.examples:
+            want = example.want
+            source = example.source
+
+            # strip doctest directives
+            source = doctest_re.sub('', source)
+
+            # highlight
+            source = highlight(source)
+
+            # strip trailing newline - added back below
+            assert source[-2] != '\r'
+            if source[-1] == '\n':
+                source = source[:-1]
+
+            # write out source code one keypress at a time
+            write('>>> ')
+            for s in source:
+                eat_key()
+                write(s)
+
+                if s == '\n':
+                    write('... ')
+
+            # slurp extra keys until <enter>
+            while eat_key() != '\r':
+                pass
+
+            # write out response, adding stripped newline first
+            write('\n')
+            write(want)
+
+    # display final prompt & wait for <EOF> to exit
+    write('>>> ')
+    while eat_key() != '\x04': # ^D
+        pass
+    write('\n')
+
+
 def main():
     """Usage: %prog <options> <FILE>
 
@@ -119,7 +168,10 @@ def main():
         targets[fifo_target] = fifo_target.make_target(options)
 
     if options.color:
-        from playerpiano.terminal_highlighter import highlight as _highlight
+        mod = importlib.import_module('playerpiano.terminal_highlighter')
+        highlight = mod.highlight
+    else:
+        highlight = lambda x: x
 
     fname=args[0]
 
@@ -130,54 +182,7 @@ def main():
 
     try:
         frob_tty()
-
-        # clear the screen to hide the command we were invoked with & write banner
-        if sys.platform == 'nt':
-            os.system('cls')
-        else:
-            os.system('clear')
-        write(banner)
-
-        for test in tests:
-            for example in test.examples:
-                want = example.want
-                source = example.source
-
-                # strip doctest directives
-                source = doctest_re.sub('', source)
-
-                # highlight
-                if options.color:
-                    source = _highlight(source)
-
-                # strip trailing newline - added back below
-                assert source[-2] != '\r'
-                if source[-1] == '\n':
-                    source = source[:-1]
-
-                # write out source code one keypress at a time
-                write('>>> ')
-                for s in source:
-                    eat_key()
-                    write(s)
-
-                    if s == '\n':
-                        write('... ')
-
-                # slurp extra keys until <enter>
-                while eat_key() != '\r':
-                    pass
-
-                # write out response, adding stripped newline first
-                write('\n')
-                write(want)
-
-        # display final prompt & wait for <EOF> to exit
-        write('>>> ')
-        while eat_key() != '\x04': # ^D
-            pass
-        write('\n')
-
+        run(tests, highlight)
     finally:
         restore_tty()
         for t in list(targets.keys()):
