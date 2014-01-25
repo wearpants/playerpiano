@@ -41,7 +41,9 @@ def restore_tty():
     """restore the terminal to its original state"""
     termios.tcsetattr(stdin_fd, termios.TCSADRAIN, old_mask)
 
-banner = '''Python %s on %s\nType "help", "copyright", "credits" or "license" for more information.\n'''%(sys.version, sys.platform)
+banner = '''Python {sys.version} on {sys.platform}
+Type "help", "copyright", "credits" or "license" for more information.
+'''.format(**globals())
 
 doctest_re=re.compile('# *doctest.*$')
 
