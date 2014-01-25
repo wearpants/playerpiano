@@ -25,7 +25,8 @@ def frob_tty():
     stdin_fd = sys.stdin.fileno()
     old_mask = termios.tcgetattr(stdin_fd)
     new = old_mask[:]
-    new[3] = new[3] & ~termios.ECHO # 3 == 'lflags'
+    LFLAGS = 3
+    new[LFLAGS] &= ~termios.ECHO
     termios.tcsetattr(stdin_fd, termios.TCSADRAIN, new)
     tty.setraw(stdin_fd)
 
