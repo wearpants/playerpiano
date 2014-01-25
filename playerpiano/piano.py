@@ -78,18 +78,6 @@ def doctests_from_module(modname):
     tests = doctest.DocTestFinder().find(module)
     return tests
 
-usage = \
-"""Usage: %s <options> <FILE>
-
-PlayerPiano amazes your friends by running Python doctests
-in a fake interactive shell.
-
-FILE can either be a module name or the path to a text file.
-Press: <random_keys> to 'type' source   <EOF> to exit at the end
-       <enter> to show results.         <^C> to break.
-"""%os.path.basename(sys.argv[0])
-
-
 targets = {} # places we write to
 
 def write(s):
@@ -97,8 +85,17 @@ def write(s):
         t(s)
 
 def main():
+    """Usage: %prog <options> <FILE>
 
-    optparser = optparse.OptionParser(usage = usage)
+    PlayerPiano amazes your friends by running Python doctests
+    in a fake interactive shell.
+
+    FILE can either be a module name or the path to a text file.
+    Press: <random_keys> to 'type' source   <EOF> to exit at the end
+           <enter> to show results.         <^C> to break.
+    """
+
+    optparser = optparse.OptionParser(usage=main.__doc__)
     optparser.add_option("--fifo", dest="fifo", action="store", default=None,
     help="duplicate output to a fifo")
     optparser.add_option("--no-terminal", dest="terminal", action="store_false", default=True,
@@ -123,7 +120,6 @@ def main():
     if options.color:
         from playerpiano.terminal_highlighter import highlight as _highlight
 
-
     fname=args[0]
 
     if os.path.exists(fname):
@@ -143,7 +139,6 @@ def main():
 
         for test in tests:
             for example in test.examples:
-                char_count = 0
                 want = example.want
                 source = example.source
 
@@ -162,7 +157,7 @@ def main():
                 # write out source code one keypress at a time
                 write('>>> ')
                 for s in source:
-                    c = eat_key()
+                    eat_key()
                     write(s)
 
                     if s == '\n':
