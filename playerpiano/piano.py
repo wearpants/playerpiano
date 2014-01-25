@@ -16,13 +16,11 @@ import optparse
 import re
 import os.path
 import importlib
+import contextlib
 
-stdin_fd = None
-old_mask = None
-
+@contextlib.contextmanager
 def frob_tty():
     """massage the terminal to not echo characters & the like"""
-    global stdin_fd, old_mask
     stdin_fd = sys.stdin.fileno()
     old_mask = termios.tcgetattr(stdin_fd)
     new = old_mask[:]
@@ -30,6 +28,11 @@ def frob_tty():
     new[LFLAGS] &= ~termios.ECHO
     termios.tcsetattr(stdin_fd, termios.TCSADRAIN, new)
     tty.setraw(stdin_fd)
+    try:
+        yield
+    finally:
+        # restore the terminal to its original state
+        termios.tcsetattr(stdin_fd, termios.TCSADRAIN, old_mask)
 
 def eat_key():
     """consume a key.  Exit on ^C"""
@@ -38,10 +41,6 @@ def eat_key():
         sys.exit(1)
     else:
         return c
-
-def restore_tty():
-    """restore the terminal to its original state"""
-    termios.tcsetattr(stdin_fd, termios.TCSADRAIN, old_mask)
 
 banner = '''Python {sys.version} on {sys.platform}
 Type "help", "copyright", "credits" or "license" for more information.
@@ -181,10 +180,9 @@ def main():
         tests = doctests_from_module(fname)
 
     try:
-        frob_tty()
-        run(tests, highlight)
+        with frob_tty():
+            run(tests, highlight)
     finally:
-        restore_tty()
         for t in list(targets.keys()):
             del targets[t]
             t.free_target()
