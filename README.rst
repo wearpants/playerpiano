@@ -37,9 +37,3 @@ than useful at present.
 
 The ``--fifo`` option takes the name of a fifo to duplicate output to. After starting 
 playerpiano with this option, you must run ``cat name_of_fifo`` in another terminal before any output will be displayed. This is useful when presenting using a projector. Start a second xterm & run cat, then put it on the overhead (with the main terminal on your laptop). This allows you to see what you're doing.
-
-*****************************************
-Limitations
-*****************************************
-PlayerPiano only works on Unix-y operating systems, and requires a terminal that 
-speaks VT100. If it works on Windows, please let the author know!
