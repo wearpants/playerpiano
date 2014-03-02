@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """PlayerPiano amazes your friends by running Python doctests in a fake interactive shell.
 
-author: Peter Fein 
+author: Peter Fein
 email: pfein@pobox.com
 homepage: http://playerpiano.googlecode.com/
 
@@ -12,22 +12,27 @@ import doctest
 import termios
 import tty
 import sys
-import optparse
+import argparse
 import re
 import os.path
+import importlib
+import contextlib
 
-stdin_fd = None
-old_mask = None
-
+@contextlib.contextmanager
 def frob_tty():
     """massage the terminal to not echo characters & the like"""
-    global stdin_fd, old_mask
     stdin_fd = sys.stdin.fileno()
     old_mask = termios.tcgetattr(stdin_fd)
     new = old_mask[:]
-    new[3] = new[3] & ~termios.ECHO # 3 == 'lflags'
+    LFLAGS = 3
+    new[LFLAGS] &= ~termios.ECHO
     termios.tcsetattr(stdin_fd, termios.TCSADRAIN, new)
     tty.setraw(stdin_fd)
+    try:
+        yield
+    finally:
+        # restore the terminal to its original state
+        termios.tcsetattr(stdin_fd, termios.TCSADRAIN, old_mask)
 
 def eat_key():
     """consume a key.  Exit on ^C"""
@@ -37,11 +42,9 @@ def eat_key():
     else:
         return c
 
-def restore_tty():
-    """restore the terminal to its original state"""
-    termios.tcsetattr(stdin_fd, termios.TCSADRAIN, old_mask)
-    
-banner = '''Python %s on %s\nType "help", "copyright", "credits" or "license" for more information.\n'''%(sys.version, sys.platform)
+banner = '''Python {sys.version} on {sys.platform}
+Type "help", "copyright", "credits" or "license" for more information.
+'''.format(**globals())
 
 doctest_re=re.compile('# *doctest.*$')
 
@@ -66,27 +69,14 @@ def doctests_from_text(filename, encoding=None):
 
     # Read the file, convert it to a test, and run it.
     test = doctest.DocTestParser().get_doctest(text, {}, name, filename, 0)
-    
+
     return [test]
 
 
 def doctests_from_module(modname):
-    # need a fromlist b/c __import__ is stupid
-    module = __import__(modname, globals(), {}, '__name__')    
+    module = importlib.import_module(modname)
     tests = doctest.DocTestFinder().find(module)
     return tests
-
-usage = \
-"""Usage: %s <options> <FILE> 
-
-PlayerPiano amazes your friends by running Python doctests
-in a fake interactive shell.
-
-FILE can either be a module name or the path to a text file.
-Press: <random_keys> to 'type' source   <EOF> to exit at the end
-       <enter> to show results.         <^C> to break.
-"""%os.path.basename(sys.argv[0])
-
 
 targets = {} # places we write to
 
@@ -94,21 +84,74 @@ def write(s):
     for t in targets.values():
         t(s)
 
+def run(tests, highlight):
+    # clear the screen to hide the command we were invoked with & write banner
+    if sys.platform == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
+    write(banner)
+
+    for test in tests:
+        for example in test.examples:
+            want = example.want
+            source = example.source
+
+            # strip doctest directives
+            source = doctest_re.sub('', source)
+
+            # highlight
+            source = highlight(source)
+
+            # strip trailing newline - added back below
+            assert source[-2] != '\r'
+            if source[-1] == '\n':
+                source = source[:-1]
+
+            # write out source code one keypress at a time
+            write('>>> ')
+            for s in source:
+                eat_key()
+                write(s)
+
+                if s == '\n':
+                    write('... ')
+
+            # slurp extra keys until <enter>
+            while eat_key() != '\r':
+                pass
+
+            # write out response, adding stripped newline first
+            write('\n')
+            write(want)
+
+    # display final prompt & wait for <EOF> to exit
+    write('>>> ')
+    while eat_key() != '\x04': # ^D
+        pass
+    write('\n')
+
+
 def main():
-    
-    optparser = optparse.OptionParser(usage = usage)
-    optparser.add_option("--fifo", dest="fifo", action="store", default=None,
+    """%(prog)s <options> <FILE>
+
+    PlayerPiano amazes your friends by running Python doctests
+    in a fake interactive shell.
+
+    Press: <random_keys> to 'type' source   <EOF> to exit at the end
+           <enter> to show results.         <^C> to break.
+    """
+
+    parser = argparse.ArgumentParser(usage=main.__doc__)
+    parser.add_argument("--fifo", dest="fifo", action="store", default=None,
     help="duplicate output to a fifo")
-    optparser.add_option("--no-terminal", dest="terminal", action="store_false", default=True,
-    help="disable output on main terminal")    
-    optparser.add_option("--color", dest="color", action="store_true", default=False,
+    parser.add_argument("--no-terminal", dest="terminal", action="store_false", default=True,
+    help="disable output on main terminal")
+    parser.add_argument("--color", dest="color", action="store_true", default=False,
     help="enable color")
-    
-    options, args = optparser.parse_args()
-    
-    if len(args) != 1:
-        optparser.print_help()
-        sys.exit(1)
+    parser.add_argument('file',
+    help="either a module name or the path to a text file")
+    options = parser.parse_args()
 
     if options.terminal:
         from playerpiano import terminal_target
@@ -119,69 +162,20 @@ def main():
         targets[fifo_target] = fifo_target.make_target(options)
 
     if options.color:
-        from playerpiano.terminal_highlighter import highlight as _highlight
-        
-
-    fname=args[0]
-    
-    if os.path.exists(fname):
-        tests = doctests_from_text(fname)
+        mod = importlib.import_module('playerpiano.terminal_highlighter')
+        highlight = mod.highlight
     else:
-        tests = doctests_from_module(fname)    
-    
+        highlight = lambda x: x
+
+    if os.path.exists(options.file):
+        tests = doctests_from_text(options.file)
+    else:
+        tests = doctests_from_module(options.file)
+
     try:
-        frob_tty()
-
-        # clear the screen to hide the command we were invoked with & write banner
-        if sys.platform == 'nt':
-            os.system('cls')
-        else:
-            os.system('clear')
-        write(banner)
-
-        for test in tests:
-            for example in test.examples:
-                char_count = 0 
-                want = example.want
-                source = example.source
-                
-                # strip doctest directives
-                source = doctest_re.sub('', source)
-
-                # highlight
-                if options.color:
-                    source = _highlight(source)
-
-                # strip trailing newline - added back below
-                assert source[-2] != '\r'
-                if source[-1] == '\n':
-                    source = source[:-1]
-                
-                # write out source code one keypress at a time
-                write('>>> ')
-                for s in source:
-                    c = eat_key()
-                    write(s)
-
-                    if s == '\n':
-                        write('... ')
-                
-                # slurp extra keys until <enter>
-                while eat_key() != '\r':
-                    pass
-                
-                # write out response, adding stripped newline first
-                write('\n')
-                write(want)
-        
-        # display final prompt & wait for <EOF> to exit
-        write('>>> ')
-        while eat_key() != '\x04': # ^D
-            pass
-        write('\n')
-        
+        with frob_tty():
+            run(tests, highlight)
     finally:
-        restore_tty()
         for t in list(targets.keys()):
             del targets[t]
             t.free_target()
