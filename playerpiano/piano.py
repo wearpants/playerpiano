@@ -18,6 +18,9 @@ import os.path
 import importlib
 import contextlib
 
+from . import terminal_highlighter, fifo_target, terminal_target
+
+
 @contextlib.contextmanager
 def frob_tty():
     """massage the terminal to not echo characters & the like"""
@@ -154,16 +157,13 @@ def main():
     options = parser.parse_args()
 
     if options.terminal:
-        from playerpiano import terminal_target
         targets[terminal_target] = terminal_target.make_target(options)
 
     if options.fifo:
-        from playerpiano import fifo_target
         targets[fifo_target] = fifo_target.make_target(options)
 
     if options.color:
-        mod = importlib.import_module('playerpiano.terminal_highlighter')
-        highlight = mod.highlight
+        highlight = terminal_highlighter.highlight
     else:
         highlight = lambda x: x
 
