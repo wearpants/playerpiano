@@ -1,2 +1,2 @@
-include README.rst LICENSE VERSION sample.txt
+include README.rst LICENSE VERSION CONTRIBUTORS sample.txt
 recursive-include playerpiano *.py
