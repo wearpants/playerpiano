@@ -157,7 +157,9 @@ def main():
     parser.add_argument("--no-terminal", dest="terminal", action="store_false", default=True,
     help="disable output on main terminal")
     parser.add_argument("--color", dest="color", action="store_true", default=False,
-    help="enable color")
+    help="enable color for Python 2")
+    parser.add_argument("--color3", dest="color3", action="store_true", default=False,
+    help="enable color for Python 3")
     parser.add_argument('file',
     help="either a module name or the path to a text file")
     options = parser.parse_args()
@@ -169,7 +171,9 @@ def main():
         targets[fifo_target] = fifo_target.make_target(options)
 
     if options.color:
-        highlight = terminal_highlighter.highlight
+        highlight = terminal_highlighter.highlight2
+    elif options.color3:
+        highlight = terminal_highlighter.highlight3
     else:
         highlight = lambda x: x
 

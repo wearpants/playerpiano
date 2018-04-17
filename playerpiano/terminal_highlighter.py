@@ -3,15 +3,25 @@ import pygments
 import pygments.lexers
 import pygments.formatters
 
-lexer = pygments.lexers.PythonLexer()
+lexer2 = pygments.lexers.PythonLexer()
+lexer3 = pygments.lexers.Python3Lexer()
 formatter = pygments.formatters.TerminalFormatter(bg="dark")
 
-def highlight(source):
+def highlight2(source):
     # highlight
-    source = pygments.highlight(source, lexer, formatter)
+    source = pygments.highlight(source, lexer2, formatter)
     # "fix it up"
     source = UselessColorFilter().process_string(source)
     return source
+
+
+def highlight3(source):
+    # highlight
+    source = pygments.highlight(source, lexer3, formatter)
+    # "fix it up"
+    source = UselessColorFilter().process_string(source)
+    return source
+
 
 class UselessColorFilter(object):
     """a finite state machine that eats duplicate equivalent ANSi color codes, as should be 'obvious', from the source. -asheesh
