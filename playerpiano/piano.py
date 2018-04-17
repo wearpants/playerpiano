@@ -14,6 +14,7 @@ import tty
 import sys
 import argparse
 import re
+import time
 import os.path
 import importlib
 import contextlib
@@ -126,7 +127,12 @@ def run(tests, highlight):
 
             # write out response, adding stripped newline first
             write('\n')
-            write(want)
+            for w in want.splitlines():
+                if w.startswith('PLAYERPIANO_PAUSE'):
+                    t = w.split('=')[1]
+                    time.sleep(float(t))
+                else:
+                    write(w + '\n')
 
     # display final prompt & wait for <EOF> to exit
     write('>>> ')
