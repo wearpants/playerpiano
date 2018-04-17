@@ -1,2 +1,2 @@
-include README.rst LICENSE VERSION CONTRIBUTORS CHANGELOG sample.txt
+include README.rst LICENSE VERSION CONTRIBUTORS CHANGELOG sample.txt CODE_OF_CONDUCT.md CONTRIBUTING.rst
 recursive-include playerpiano *.py
